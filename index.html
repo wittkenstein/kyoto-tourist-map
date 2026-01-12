@@ -7,6 +7,12 @@
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5864554921667889"
      crossorigin="anonymous"></script>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -18,25 +24,59 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        #map { 
-            height: calc(100vh - 90px); 
-            width: 100%; 
+        #map { height: calc(100vh - 90px); width: 100%; }
+
+        /* ★★★ 新機能：ウェルカム画面（モーダル）のデザイン ★★★ */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* 背景を暗くする */
+            z-index: 9999; /* 一番手前に表示 */
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px); /* すりガラス効果 */
         }
 
-        /* カスタムアイコン（絵文字ピン）のデザイン */
+        .modal-content {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 { margin-top: 0; color: #333; }
+        .modal-content p { color: #666; font-size: 15px; line-height: 1.6; }
+        
+        .feature-list {
+            list-style: none; padding: 0; margin: 20px 0;
+            text-align: left; display: inline-block;
+        }
+        .feature-list li { margin-bottom: 8px; font-size: 14px; color: #555; }
+
+        .start-btn {
+            background: #E91E63; color: white; border: none;
+            padding: 12px 30px; border-radius: 25px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            width: 100%; display: block; margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
+        }
+        .start-btn:active { transform: scale(0.98); }
+        /* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
+
         .emoji-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            border: 2px solid #fff;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%; border: 2px solid #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            width: 40px !important;
-            height: 40px !important;
-            margin-left: -20px !important; /* 中心合わせ */
-            margin-top: -20px !important;
+            width: 40px !important; height: 40px !important;
+            margin-left: -20px !important; margin-top: -20px !important;
         }
 
         .controls-container {
@@ -57,9 +97,7 @@
         }
         .category-bar::-webkit-scrollbar { display: none; }
 
-        select {
-            padding: 8px; font-size: 14px; border-radius: 8px; border: 1px solid #ddd; width: 60%; background: #f8f9fa;
-        }
+        select { padding: 8px; font-size: 14px; border-radius: 8px; border: 1px solid #ddd; width: 60%; background: #f8f9fa; }
 
         .btn-gps-small {
             background: #E91E63; color: white; border: none; padding: 8px 15px; border-radius: 20px;
@@ -71,10 +109,7 @@
             cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
         .category-btn:active { transform: scale(0.95); }
-
-        .btn-clear {
-            background: #fff; color: #555; border: 1px solid #ccc;
-        }
+        .btn-clear { background: #fff; color: #555; border: 1px solid #ccc; }
 
         .loading-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000;
@@ -89,9 +124,7 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .footer-links {
-            height: 30px; background: #fff; text-align: center; font-size: 11px; line-height: 30px; color: #666;
-        }
+        .footer-links { height: 30px; background: #fff; text-align: center; font-size: 11px; line-height: 30px; color: #666; }
         .footer-links a { color: #666; text-decoration: none; margin: 0 10px; }
 
         .popup-btn {
@@ -102,6 +135,23 @@
 </head>
 <body>
 
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Welcome to Kyoto! ⛩️</h2>
+            <p>Your simple guide for traveling in Kyoto.</p>
+            
+            <ul class="feature-list">
+                <li>🚽 <b>Restrooms & Wi-Fi</b> Finder</li>
+                <li>🥗 <b>Vegetarian & Halal</b> Spots</li>
+                <li>🚌 <b>Bus Stops</b> & Convenience Stores</li>
+                <li>📍 <b>Navigation</b> to the location</li>
+            </ul>
+
+            <p style="font-size:13px; color:#888;">Select an area and tap the buttons!</p>
+            
+            <button class="start-btn" onclick="closeModal()">Start Exploring</button>
+        </div>
+    </div>
     <div class="controls-container">
         <div class="area-bar">
             <select id="areaSelect" onchange="jumpToArea(this.value)">
@@ -131,9 +181,7 @@
     <div id="loading" class="loading-msg">Searching...</div>
     <div id="map"></div>
     
-    <div class="ad-space">
-        [ Advertisement ]
-    </div>
+    <div class="ad-space">[ Advertisement ]</div>
     
     <div class="footer-links">
         <a href="privacy.html">Privacy Policy</a> | © Kyoto Tourist Map
@@ -146,6 +194,11 @@
         var currentMarkers = [];
         var myLocationMarker = null;
         var dataCache = {}; 
+
+        // ★ モーダルを閉じる関数
+        function closeModal() {
+            document.getElementById('welcomeModal').style.display = 'none';
+        }
 
         var areas = {
             "kyoto_st": [34.9858, 135.7588],
