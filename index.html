@@ -26,49 +26,34 @@
         
         #map { height: calc(100vh - 90px); width: 100%; }
 
-        /* ★★★ 新機能：ウェルカム画面（モーダル）のデザイン ★★★ */
+        /* ウェルカム画面（モーダル） */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); /* 背景を暗くする */
-            z-index: 9999; /* 一番手前に表示 */
+            background: rgba(0, 0, 0, 0.6); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px); /* すりガラス効果 */
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 20px;
-            width: 85%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: popIn 0.3s ease-out;
+            background: white; padding: 30px 20px; border-radius: 20px;
+            width: 85%; max-width: 400px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         .modal-content h2 { margin-top: 0; color: #333; }
         .modal-content p { color: #666; font-size: 15px; line-height: 1.6; }
         
-        .feature-list {
-            list-style: none; padding: 0; margin: 20px 0;
-            text-align: left; display: inline-block;
-        }
+        .feature-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; display: inline-block; }
         .feature-list li { margin-bottom: 8px; font-size: 14px; color: #555; }
 
         .start-btn {
-            background: #E91E63; color: white; border: none;
-            padding: 12px 30px; border-radius: 25px;
-            font-size: 16px; font-weight: bold; cursor: pointer;
-            width: 100%; display: block; margin-top: 15px;
+            background: #E91E63; color: white; border: none; padding: 12px 30px; border-radius: 25px;
+            font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; display: block; margin-top: 15px;
             box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
         }
         .start-btn:active { transform: scale(0.98); }
-        /* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
 
         .emoji-icon {
             display: flex; justify-content: center; align-items: center;
@@ -139,19 +124,17 @@
         <div class="modal-content">
             <h2>Welcome to Kyoto! ⛩️</h2>
             <p>Your simple guide for traveling in Kyoto.</p>
-            
             <ul class="feature-list">
                 <li>🚽 <b>Restrooms & Wi-Fi</b> Finder</li>
                 <li>🥗 <b>Vegetarian & Halal</b> Spots</li>
                 <li>🚌 <b>Bus Stops</b> & Convenience Stores</li>
                 <li>📍 <b>Navigation</b> to the location</li>
             </ul>
-
             <p style="font-size:13px; color:#888;">Select an area and tap the buttons!</p>
-            
             <button class="start-btn" onclick="closeModal()">Start Exploring</button>
         </div>
     </div>
+
     <div class="controls-container">
         <div class="area-bar">
             <select id="areaSelect" onchange="jumpToArea(this.value)">
@@ -195,7 +178,6 @@
         var myLocationMarker = null;
         var dataCache = {}; 
 
-        // ★ モーダルを閉じる関数
         function closeModal() {
             document.getElementById('welcomeModal').style.display = 'none';
         }
@@ -251,8 +233,9 @@
             document.getElementById('loading').innerText = "Searching " + label + "...";
             document.getElementById('loading').style.display = 'block';
 
-            var query = `[out:json][timeout:30];node[${queryTag}](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});out;`;
-            var overpassUrl = 'https://api.openstreetmap.fr/oapi/interpreter?data=' + encodeURIComponent(query);
+            var query = `[out:json][timeout:25];node[${queryTag}](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});out;`;
+            // ★サーバーを本家（ドイツ）に戻しました
+            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
 
             fetch(overpassUrl)
                 .then(response => {
@@ -266,7 +249,8 @@
                 })
                 .catch(error => {
                     console.error(error);
-                    document.getElementById('loading').innerText = "⚠️ Busy. Try again later.";
+                    document.getElementById('loading').innerText = "⚠️ Server busy. Retrying...";
+                    // ★失敗したら3秒後に自動で再トライする機能を追加
                     setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 3000);
                 });
         }
