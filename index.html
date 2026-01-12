@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kyoto Map Pro</title>
-    
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5864554921667889"
+     crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -64,14 +66,12 @@
             font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(233, 30, 99, 0.3);
         }
 
-        /* カテゴリボタン */
         .category-btn {
             color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px;
             cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
         .category-btn:active { transform: scale(0.95); }
 
-        /* クリアボタン（新機能） */
         .btn-clear {
             background: #fff; color: #555; border: 1px solid #ccc;
         }
@@ -118,7 +118,6 @@
 
         <div class="category-bar">
             <button class="category-btn btn-clear" onclick="clearMap()">✖ Clear</button>
-            
             <button class="category-btn" style="background:#008CBA" onclick="fetchData('amenity=toilets', 'Restroom', '🚽')">🚽 Toilets</button>
             <button class="category-btn" style="background:#f44336" onclick="fetchData('amenity=atm', 'ATM', '🏧')">🏧 ATM</button>
             <button class="category-btn" style="background:#FF9800" onclick="fetchData('highway=bus_stop', 'Bus Stop', '🚌')">🚌 Bus</button>
@@ -132,7 +131,9 @@
     <div id="loading" class="loading-msg">Searching...</div>
     <div id="map"></div>
     
-    <div class="ad-space">[ Ad Space: Google AdSense Banner Here ]</div>
+    <div class="ad-space">
+        [ Advertisement ]
+    </div>
     
     <div class="footer-links">
         <a href="privacy.html">Privacy Policy</a> | © Kyoto Tourist Map
@@ -169,12 +170,7 @@
         map.on('locationfound', function(e) {
             document.getElementById('loading').style.display = 'none';
             if (myLocationMarker) map.removeLayer(myLocationMarker);
-            // 現在地もわかりやすいアイコンに変更
-            var gpsIcon = L.divIcon({
-                className: 'emoji-icon',
-                html: '📍',
-                iconSize: [40, 40]
-            });
+            var gpsIcon = L.divIcon({ className: 'emoji-icon', html: '📍', iconSize: [40, 40] });
             myLocationMarker = L.marker(e.latlng, {icon: gpsIcon}).addTo(map)
                 .bindPopup("You are here").openPopup();
         });
@@ -184,16 +180,13 @@
             document.getElementById('loading').style.display = 'none';
         });
 
-        // マップをクリアする機能
         function clearMap() {
             currentMarkers.forEach(m => map.removeLayer(m));
             currentMarkers = [];
         }
 
-        // 引数に「iconChar (絵文字)」を追加
         function fetchData(queryTag, label, iconChar) {
-            clearMap(); // 検索前に一旦クリア
-            
+            clearMap();
             var bounds = map.getBounds();
             var cacheKey = queryTag + "_" + bounds.toBBoxString();
 
@@ -227,26 +220,15 @@
 
         function displayData(elements, label, iconChar) {
             if(elements.length === 0) return;
-
-            // 絵文字アイコンを作成する設定
-            var customIcon = L.divIcon({
-                className: 'emoji-icon', // 上のCSSでデザインを指定
-                html: iconChar,          // ボタンに応じた絵文字を入れる
-                iconSize: [40, 40]
-            });
-
+            var customIcon = L.divIcon({ className: 'emoji-icon', html: iconChar, iconSize: [40, 40] });
             elements.forEach(element => {
-                // アイコンを指定してマーカーを作成
                 var marker = L.marker([element.lat, element.lon], {icon: customIcon}).addTo(map);
-                
                 var name = element.tags.name || element.tags["name:en"] || label;
                 var googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${element.lat},${element.lon}`;
-                
                 var popupContent = `
                     <div style="font-size:14px; min-width:150px">
                         <div style="font-size:24px; text-align:center;">${iconChar}</div>
-                        <b style="color:#333">${label}</b><br>
-                        ${name}<br>
+                        <b style="color:#333">${label}</b><br>${name}<br>
                         <a href="${googleMapsLink}" target="_blank" class="popup-btn">🚶 Take me there!</a>
                     </div>
                 `;
