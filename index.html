@@ -2,19 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kyoto Map Pro</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { 
+            margin: 0; padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         
-        /* 全体のレイアウト調整 */
         #map { 
-            height: calc(100vh - 90px); /* 広告+フッターの分を引く */
+            height: calc(100vh - 90px); 
             width: 100%; 
+        }
+
+        /* カスタムアイコン（絵文字ピン）のデザイン */
+        .emoji-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            width: 40px !important;
+            height: 40px !important;
+            margin-left: -20px !important; /* 中心合わせ */
+            margin-top: -20px !important;
         }
 
         .controls-container {
@@ -25,6 +45,7 @@
         .area-bar {
             background: rgba(255, 255, 255, 0.98); padding: 10px; pointer-events: auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between;
+            padding-top: env(safe-area-inset-top);
         }
 
         .category-bar {
@@ -35,7 +56,7 @@
         .category-bar::-webkit-scrollbar { display: none; }
 
         select {
-            padding: 8px; font-size: 14px; border-radius: 8px; border: 1px solid #ddd; width: 65%; background: #f8f9fa;
+            padding: 8px; font-size: 14px; border-radius: 8px; border: 1px solid #ddd; width: 60%; background: #f8f9fa;
         }
 
         .btn-gps-small {
@@ -43,11 +64,17 @@
             font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(233, 30, 99, 0.3);
         }
 
+        /* カテゴリボタン */
         .category-btn {
             color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px;
             cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
         .category-btn:active { transform: scale(0.95); }
+
+        /* クリアボタン（新機能） */
+        .btn-clear {
+            background: #fff; color: #555; border: 1px solid #ccc;
+        }
 
         .loading-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000;
@@ -55,14 +82,13 @@
             display: none; font-size: 14px; font-weight: bold;
         }
 
-        /* 広告スペース */
         .ad-space {
             height: 60px; width: 100%; background-color: #f0f0f0; display: flex;
             align-items: center; justify-content: center; border-top: 1px solid #ccc;
             color: #888; font-size: 12px; font-weight: bold;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* ★追加：フッターリンク */
         .footer-links {
             height: 30px; background: #fff; text-align: center; font-size: 11px; line-height: 30px; color: #666;
         }
@@ -91,13 +117,15 @@
         </div>
 
         <div class="category-bar">
-            <button class="category-btn" style="background:#008CBA" onclick="fetchData('amenity=toilets', 'Restroom')">🚽 Toilets</button>
-            <button class="category-btn" style="background:#f44336" onclick="fetchData('amenity=atm', 'ATM')">🏧 ATM</button>
-            <button class="category-btn" style="background:#FF9800" onclick="fetchData('highway=bus_stop', 'Bus Stop')">🚌 Bus</button>
-            <button class="category-btn" style="background:#9C27B0" onclick="fetchData('shop=convenience', 'Konbini')">🏪 Konbini</button>
-            <button class="category-btn" style="background:#4CAF50" onclick="fetchData('diet:vegetarian=yes', 'Veg/Halal')">🥗 Veg/Halal</button>
-            <button class="category-btn" style="background:#2196F3" onclick="fetchData('internet_access=wlan', 'Wi-Fi')">📶 Wi-Fi</button>
-            <button class="category-btn" style="background:#795548" onclick="fetchData('amenity=waste_basket', 'Trash Can')">🗑️ Trash</button>
+            <button class="category-btn btn-clear" onclick="clearMap()">✖ Clear</button>
+            
+            <button class="category-btn" style="background:#008CBA" onclick="fetchData('amenity=toilets', 'Restroom', '🚽')">🚽 Toilets</button>
+            <button class="category-btn" style="background:#f44336" onclick="fetchData('amenity=atm', 'ATM', '🏧')">🏧 ATM</button>
+            <button class="category-btn" style="background:#FF9800" onclick="fetchData('highway=bus_stop', 'Bus Stop', '🚌')">🚌 Bus</button>
+            <button class="category-btn" style="background:#9C27B0" onclick="fetchData('shop=convenience', 'Konbini', '🏪')">🏪 Konbini</button>
+            <button class="category-btn" style="background:#4CAF50" onclick="fetchData('diet:vegetarian=yes', 'Veg/Halal', '🥗')">🥗 Veg/Halal</button>
+            <button class="category-btn" style="background:#2196F3" onclick="fetchData('internet_access=wlan', 'Wi-Fi', '📶')">📶 Wi-Fi</button>
+            <button class="category-btn" style="background:#795548" onclick="fetchData('amenity=waste_basket', 'Trash Can', '🗑️')">🗑️ Trash</button>
         </div>
     </div>
 
@@ -141,9 +169,14 @@
         map.on('locationfound', function(e) {
             document.getElementById('loading').style.display = 'none';
             if (myLocationMarker) map.removeLayer(myLocationMarker);
-            myLocationMarker = L.circleMarker(e.latlng, {
-                radius: 10, color: '#fff', fillColor: '#E91E63', fillOpacity: 1
-            }).addTo(map).bindPopup("You are here").openPopup();
+            // 現在地もわかりやすいアイコンに変更
+            var gpsIcon = L.divIcon({
+                className: 'emoji-icon',
+                html: '📍',
+                iconSize: [40, 40]
+            });
+            myLocationMarker = L.marker(e.latlng, {icon: gpsIcon}).addTo(map)
+                .bindPopup("You are here").openPopup();
         });
         
         map.on('locationerror', function(e) {
@@ -151,15 +184,21 @@
             document.getElementById('loading').style.display = 'none';
         });
 
-        function fetchData(queryTag, label) {
+        // マップをクリアする機能
+        function clearMap() {
             currentMarkers.forEach(m => map.removeLayer(m));
             currentMarkers = [];
+        }
+
+        // 引数に「iconChar (絵文字)」を追加
+        function fetchData(queryTag, label, iconChar) {
+            clearMap(); // 検索前に一旦クリア
             
             var bounds = map.getBounds();
             var cacheKey = queryTag + "_" + bounds.toBBoxString();
 
             if (dataCache[cacheKey]) {
-                displayData(dataCache[cacheKey], label);
+                displayData(dataCache[cacheKey], label, iconChar);
                 return;
             }
 
@@ -176,7 +215,7 @@
                 })
                 .then(data => {
                     dataCache[cacheKey] = data.elements;
-                    displayData(data.elements, label);
+                    displayData(data.elements, label, iconChar);
                     document.getElementById('loading').style.display = 'none';
                 })
                 .catch(error => {
@@ -186,16 +225,28 @@
                 });
         }
 
-        function displayData(elements, label) {
+        function displayData(elements, label, iconChar) {
             if(elements.length === 0) return;
+
+            // 絵文字アイコンを作成する設定
+            var customIcon = L.divIcon({
+                className: 'emoji-icon', // 上のCSSでデザインを指定
+                html: iconChar,          // ボタンに応じた絵文字を入れる
+                iconSize: [40, 40]
+            });
+
             elements.forEach(element => {
-                var marker = L.marker([element.lat, element.lon]).addTo(map);
+                // アイコンを指定してマーカーを作成
+                var marker = L.marker([element.lat, element.lon], {icon: customIcon}).addTo(map);
+                
                 var name = element.tags.name || element.tags["name:en"] || label;
                 var googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${element.lat},${element.lon}`;
                 
                 var popupContent = `
                     <div style="font-size:14px; min-width:150px">
-                        <b>${label}</b><br>${name}<br>
+                        <div style="font-size:24px; text-align:center;">${iconChar}</div>
+                        <b style="color:#333">${label}</b><br>
+                        ${name}<br>
                         <a href="${googleMapsLink}" target="_blank" class="popup-btn">🚶 Take me there!</a>
                     </div>
                 `;
