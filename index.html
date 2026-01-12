@@ -125,10 +125,10 @@
             <h2>Welcome to Kyoto! ⛩️</h2>
             <p>Your simple guide for traveling in Kyoto.</p>
             <ul class="feature-list">
+                <li>📷 <b>Sightseeing</b> & Temples</li>
+                <li>🧳 <b>Coin Lockers</b> for Luggage</li>
                 <li>🚽 <b>Restrooms & Wi-Fi</b> Finder</li>
                 <li>🥗 <b>Vegetarian & Halal</b> Spots</li>
-                <li>🚌 <b>Bus Stops</b> & Convenience Stores</li>
-                <li>📍 <b>Navigation</b> to the location</li>
             </ul>
             <p style="font-size:13px; color:#888;">Select an area and tap the buttons!</p>
             <button class="start-btn" onclick="closeModal()">Start Exploring</button>
@@ -151,128 +151,7 @@
 
         <div class="category-bar">
             <button class="category-btn btn-clear" onclick="clearMap()">✖ Clear</button>
-            <button class="category-btn" style="background:#008CBA" onclick="fetchData('amenity=toilets', 'Restroom', '🚽')">🚽 Toilets</button>
-            <button class="category-btn" style="background:#f44336" onclick="fetchData('amenity=atm', 'ATM', '🏧')">🏧 ATM</button>
-            <button class="category-btn" style="background:#FF9800" onclick="fetchData('highway=bus_stop', 'Bus Stop', '🚌')">🚌 Bus</button>
-            <button class="category-btn" style="background:#9C27B0" onclick="fetchData('shop=convenience', 'Konbini', '🏪')">🏪 Konbini</button>
-            <button class="category-btn" style="background:#4CAF50" onclick="fetchData('diet:vegetarian=yes', 'Veg/Halal', '🥗')">🥗 Veg/Halal</button>
-            <button class="category-btn" style="background:#2196F3" onclick="fetchData('internet_access=wlan', 'Wi-Fi', '📶')">📶 Wi-Fi</button>
-            <button class="category-btn" style="background:#795548" onclick="fetchData('amenity=waste_basket', 'Trash Can', '🗑️')">🗑️ Trash</button>
-        </div>
-    </div>
-
-    <div id="loading" class="loading-msg">Searching...</div>
-    <div id="map"></div>
-    
-    <div class="ad-space">[ Advertisement ]</div>
-    
-    <div class="footer-links">
-        <a href="privacy.html">Privacy Policy</a> | © Kyoto Tourist Map
-    </div>
-
-    <script>
-        var map = L.map('map', {zoomControl: false}).setView([35.0035, 135.7695], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
-
-        var currentMarkers = [];
-        var myLocationMarker = null;
-        var dataCache = {}; 
-
-        function closeModal() {
-            document.getElementById('welcomeModal').style.display = 'none';
-        }
-
-        var areas = {
-            "kyoto_st": [34.9858, 135.7588],
-            "gion": [35.0035, 135.7695],
-            "kiyomizu": [34.9948, 135.7850],
-            "arashiyama": [35.0094, 135.6777],
-            "fushimi": [34.9671, 135.7726],
-            "kinkakuji": [35.0394, 135.7292]
-        };
-
-        function jumpToArea(areaKey) {
-            var coords = areas[areaKey];
-            if(coords) map.flyTo(coords, 15);
-        }
-
-        function getMyLocation() {
-            document.getElementById('loading').innerText = "Locating...";
-            document.getElementById('loading').style.display = 'block';
-            map.locate({setView: true, maxZoom: 16});
-        }
-        
-        map.on('locationfound', function(e) {
-            document.getElementById('loading').style.display = 'none';
-            if (myLocationMarker) map.removeLayer(myLocationMarker);
-            var gpsIcon = L.divIcon({ className: 'emoji-icon', html: '📍', iconSize: [40, 40] });
-            myLocationMarker = L.marker(e.latlng, {icon: gpsIcon}).addTo(map)
-                .bindPopup("You are here").openPopup();
-        });
-        
-        map.on('locationerror', function(e) {
-            alert("Location access denied.");
-            document.getElementById('loading').style.display = 'none';
-        });
-
-        function clearMap() {
-            currentMarkers.forEach(m => map.removeLayer(m));
-            currentMarkers = [];
-        }
-
-        function fetchData(queryTag, label, iconChar) {
-            clearMap();
-            var bounds = map.getBounds();
-            var cacheKey = queryTag + "_" + bounds.toBBoxString();
-
-            if (dataCache[cacheKey]) {
-                displayData(dataCache[cacheKey], label, iconChar);
-                return;
-            }
-
-            document.getElementById('loading').innerText = "Searching " + label + "...";
-            document.getElementById('loading').style.display = 'block';
-
-            var query = `[out:json][timeout:25];node[${queryTag}](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});out;`;
-            // ★サーバーを本家（ドイツ）に戻しました
-            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
-
-            fetch(overpassUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("Server busy");
-                    return response.json();
-                })
-                .then(data => {
-                    dataCache[cacheKey] = data.elements;
-                    displayData(data.elements, label, iconChar);
-                    document.getElementById('loading').style.display = 'none';
-                })
-                .catch(error => {
-                    console.error(error);
-                    document.getElementById('loading').innerText = "⚠️ Server busy. Retrying...";
-                    // ★失敗したら3秒後に自動で再トライする機能を追加
-                    setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 3000);
-                });
-        }
-
-        function displayData(elements, label, iconChar) {
-            if(elements.length === 0) return;
-            var customIcon = L.divIcon({ className: 'emoji-icon', html: iconChar, iconSize: [40, 40] });
-            elements.forEach(element => {
-                var marker = L.marker([element.lat, element.lon], {icon: customIcon}).addTo(map);
-                var name = element.tags.name || element.tags["name:en"] || label;
-                var googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${element.lat},${element.lon}`;
-                var popupContent = `
-                    <div style="font-size:14px; min-width:150px">
-                        <div style="font-size:24px; text-align:center;">${iconChar}</div>
-                        <b style="color:#333">${label}</b><br>${name}<br>
-                        <a href="${googleMapsLink}" target="_blank" class="popup-btn">🚶 Take me there!</a>
-                    </div>
-                `;
-                marker.bindPopup(popupContent);
-                currentMarkers.push(marker);
-            });
-        }
-    </script>
-</body>
-</html>
+            
+            <button class="category-btn" style="background:#8D6E63" onclick="fetchData('tourism=attraction', 'Sightseeing', '📷')">📷 Sightseeing</button>
+            <button class="category-btn" style="background:#607D8B" onclick="fetchData('amenity=locker', 'Coin Locker', '🧳')">🧳 Lockers</button>
+            <button class="
