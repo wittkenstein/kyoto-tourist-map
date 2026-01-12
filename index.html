@@ -3,7 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kyoto Map Pro</title>
+    
+    <title>Kyoto Tourist Map - Find Toilets, Wi-Fi, Bins & Lockers (Free)</title>
+    
+    <meta name="description" content="The best free map for Kyoto tourists. Instantly find public restrooms, trash cans (rubbish bins), coin lockers, free Wi-Fi, vegetarian/halal food, and bus stops in Arashiyama, Gion, and Kyoto Station. No install required.">
+    <meta name="keywords" content="Kyoto, Map, Toilet, Restroom, Trash can, Rubbish bin, Wi-Fi, Coin Locker, Vegetarian, Halal, Arashiyama, Gion, Fushimi Inari, Bamboo forest, Tourism">
+
+    <meta property="og:title" content="Kyoto Tourist Map ⛩️ - Free Guide">
+    <meta property="og:description" content="Find restrooms, trash cans, lockers, and free Wi-Fi in Kyoto instantly! No install needed.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wittkenstein.github.io/kyoto-tourist-map/">
+    <meta property="og:image" content="https://wittkenstein.github.io/kyoto-tourist-map/icon.png">
+    <meta name="twitter:card" content="summary">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Kyoto Tourist Map",
+      "url": "https://wittkenstein.github.io/kyoto-tourist-map/",
+      "description": "Free web application to find public restrooms, trash cans, and Wi-Fi in Kyoto.",
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5864554921667889"
      crossorigin="anonymous"></script>
@@ -26,34 +54,44 @@
         
         #map { height: calc(100vh - 90px); width: 100%; }
 
-        /* ウェルカム画面（モーダル） */
+        /* SEO用テキストエリア（目立たないように下部に配置） */
+        .seo-section {
+            padding: 20px; background: #f9f9f9; color: #666; font-size: 12px; line-height: 1.6;
+            border-top: 1px solid #eee;
+        }
+        .seo-section h1 { font-size: 16px; color: #333; margin-bottom: 10px; }
+        .seo-section h2 { font-size: 14px; color: #444; margin-top: 15px; margin-bottom: 5px; }
+
+        /* Shareボタン */
+        .share-btn-container { position: absolute; top: 10px; right: 10px; z-index: 1001; }
+        .share-btn-icon {
+            background: white; border: none; width: 40px; height: 40px; border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* モーダル */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
             backdrop-filter: blur(5px);
         }
-
         .modal-content {
             background: white; padding: 30px 20px; border-radius: 20px;
             width: 85%; max-width: 400px; text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;
         }
-
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
         .modal-content h2 { margin-top: 0; color: #333; }
         .modal-content p { color: #666; font-size: 15px; line-height: 1.6; }
-        
         .feature-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; display: inline-block; }
         .feature-list li { margin-bottom: 8px; font-size: 14px; color: #555; }
-
         .start-btn {
             background: #E91E63; color: white; border: none; padding: 12px 30px; border-radius: 25px;
             font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; display: block; margin-top: 15px;
             box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
         }
-        .start-btn:active { transform: scale(0.98); }
 
         .emoji-icon {
             display: flex; justify-content: center; align-items: center;
@@ -63,55 +101,45 @@
             width: 40px !important; height: 40px !important;
             margin-left: -20px !important; margin-top: -20px !important;
         }
-
         .controls-container {
             position: absolute; top: 0; left: 0; width: 100%; z-index: 1000;
             display: flex; flex-direction: column; gap: 0; pointer-events: none; 
         }
-
         .area-bar {
             background: rgba(255, 255, 255, 0.98); padding: 10px; pointer-events: auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between;
-            padding-top: env(safe-area-inset-top);
+            padding-top: env(safe-area-inset-top); padding-right: 60px;
         }
-
         .category-bar {
             background: rgba(255, 255, 255, 0.9); padding: 10px 0; pointer-events: auto;
             overflow-x: auto; white-space: nowrap; display: flex; gap: 8px; padding-left: 10px;
             -ms-overflow-style: none; scrollbar-width: none;  
         }
         .category-bar::-webkit-scrollbar { display: none; }
-
         select { padding: 8px; font-size: 14px; border-radius: 8px; border: 1px solid #ddd; width: 60%; background: #f8f9fa; }
-
         .btn-gps-small {
             background: #E91E63; color: white; border: none; padding: 8px 15px; border-radius: 20px;
             font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(233, 30, 99, 0.3);
         }
-
         .category-btn {
             color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px;
             cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
         .category-btn:active { transform: scale(0.95); }
         .btn-clear { background: #fff; color: #555; border: 1px solid #ccc; }
-
         .loading-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000;
             background: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 30px;
             display: none; font-size: 14px; font-weight: bold;
         }
-
         .ad-space {
             height: 60px; width: 100%; background-color: #f0f0f0; display: flex;
             align-items: center; justify-content: center; border-top: 1px solid #ccc;
             color: #888; font-size: 12px; font-weight: bold;
             padding-bottom: env(safe-area-inset-bottom);
         }
-
         .footer-links { height: 30px; background: #fff; text-align: center; font-size: 11px; line-height: 30px; color: #666; }
         .footer-links a { color: #666; text-decoration: none; margin: 0 10px; }
-
         .popup-btn {
             display: block; margin-top: 8px; background: #4285F4; color: white; text-align: center;
             padding: 6px 0; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold;
@@ -135,6 +163,10 @@
         </div>
     </div>
 
+    <div class="share-btn-container">
+        <button class="share-btn-icon" onclick="shareApp()">📤</button>
+    </div>
+
     <div class="controls-container">
         <div class="area-bar">
             <select id="areaSelect" onchange="jumpToArea(this.value)">
@@ -151,7 +183,164 @@
 
         <div class="category-bar">
             <button class="category-btn btn-clear" onclick="clearMap()">✖ Clear</button>
-            
             <button class="category-btn" style="background:#8D6E63" onclick="fetchData('tourism=attraction', 'Sightseeing', '📷')">📷 Sightseeing</button>
             <button class="category-btn" style="background:#607D8B" onclick="fetchData('amenity=locker', 'Coin Locker', '🧳')">🧳 Lockers</button>
-            <button class="
+            <button class="category-btn" style="background:#E91E63" onclick="fetchData('shop=drugstore', 'Drugstore', '💊')">💊 Drugstore</button>
+            <button class="category-btn" style="background:#008CBA" onclick="fetchData('amenity=toilets', 'Restroom', '🚽')">🚽 Toilets</button>
+            <button class="category-btn" style="background:#f44336" onclick="fetchData('amenity=atm', 'ATM', '🏧')">🏧 ATM</button>
+            <button class="category-btn" style="background:#FF9800" onclick="fetchData('highway=bus_stop', 'Bus Stop', '🚌')">🚌 Bus</button>
+            <button class="category-btn" style="background:#9C27B0" onclick="fetchData('shop=convenience', 'Konbini', '🏪')">🏪 Konbini</button>
+            <button class="category-btn" style="background:#4CAF50" onclick="fetchData('diet:vegetarian=yes', 'Veg/Halal', '🥗')">🥗 Veg/Halal</button>
+            <button class="category-btn" style="background:#2196F3" onclick="fetchData('internet_access=wlan', 'Wi-Fi', '📶')">📶 Wi-Fi</button>
+            <button class="category-btn" style="background:#795548" onclick="fetchData('amenity=waste_basket', 'Trash Can', '🗑️')">🗑️ Trash</button>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-msg">Searching...</div>
+    <div id="map"></div>
+    
+    <div class="ad-space">[ Advertisement ]</div>
+    
+    <section class="seo-section">
+        <h1>Kyoto Tourist Map: Find Restrooms, Wi-Fi & Bins</h1>
+        <p>
+            Welcome to the ultimate <strong>free Kyoto tourist map</strong>. 
+            Are you looking for a <strong>public restroom (toilet)</strong> in Gion? 
+            Can't find a <strong>trash can (rubbish bin)</strong> for your garbage? 
+            Need a <strong>coin locker</strong> at Kyoto Station or Arashiyama?
+            This web app helps you find essential facilities instantly.
+        </p>
+        <h2>Best Features for Travelers in Japan</h2>
+        <ul>
+            <li><strong>Toilets:</strong> Locate clean public restrooms nearby.</li>
+            <li><strong>Trash Cans:</strong> Find rare rubbish bins in Kyoto city.</li>
+            <li><strong>Free Wi-Fi:</strong> Connect to internet spots for tourists.</li>
+            <li><strong>Vegetarian & Halal:</strong> Find food options easily.</li>
+            <li><strong>Bus Stops:</strong> Navigate the Kyoto City Bus system.</li>
+        </ul>
+        <p>Explore major areas like <em>Fushimi Inari Taisha</em>, <em>Kiyomizu-dera</em>, <em>Kinkaku-ji (Golden Pavilion)</em>, and the <em>Arashiyama Bamboo Grove</em> with ease. No app installation required.</p>
+    </section>
+
+    <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a> | © Kyoto Tourist Map
+    </div>
+
+    <script>
+        var map = L.map('map', {zoomControl: false}).setView([35.0035, 135.7695], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
+
+        var currentMarkers = [];
+        var myLocationMarker = null;
+        var dataCache = {}; 
+
+        function closeModal() {
+            document.getElementById('welcomeModal').style.display = 'none';
+        }
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Kyoto Tourist Map',
+                    text: 'Find Restrooms, Wi-Fi, and Lockers in Kyoto!',
+                    url: window.location.href,
+                })
+                .then(() => console.log('Successful share'))
+                .catch((error) => console.log('Error sharing', error));
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("URL copied to clipboard!");
+            }
+        }
+
+        var areas = {
+            "kyoto_st": [34.9858, 135.7588],
+            "gion": [35.0035, 135.7695],
+            "kiyomizu": [34.9948, 135.7850],
+            "arashiyama": [35.0094, 135.6777],
+            "fushimi": [34.9671, 135.7726],
+            "kinkakuji": [35.0394, 135.7292]
+        };
+
+        function jumpToArea(areaKey) {
+            var coords = areas[areaKey];
+            if(coords) map.flyTo(coords, 15);
+        }
+
+        function getMyLocation() {
+            document.getElementById('loading').innerText = "Locating...";
+            document.getElementById('loading').style.display = 'block';
+            map.locate({setView: true, maxZoom: 16});
+        }
+        
+        map.on('locationfound', function(e) {
+            document.getElementById('loading').style.display = 'none';
+            if (myLocationMarker) map.removeLayer(myLocationMarker);
+            var gpsIcon = L.divIcon({ className: 'emoji-icon', html: '📍', iconSize: [40, 40] });
+            myLocationMarker = L.marker(e.latlng, {icon: gpsIcon}).addTo(map)
+                .bindPopup("You are here").openPopup();
+        });
+        
+        map.on('locationerror', function(e) {
+            alert("Location access denied.");
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        function clearMap() {
+            currentMarkers.forEach(m => map.removeLayer(m));
+            currentMarkers = [];
+        }
+
+        function fetchData(queryTag, label, iconChar) {
+            clearMap();
+            var bounds = map.getBounds();
+            var cacheKey = queryTag + "_" + bounds.toBBoxString();
+
+            if (dataCache[cacheKey]) {
+                displayData(dataCache[cacheKey], label, iconChar);
+                return;
+            }
+
+            document.getElementById('loading').innerText = "Searching " + label + "...";
+            document.getElementById('loading').style.display = 'block';
+
+            var query = `[out:json][timeout:25];node[${queryTag}](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});out;`;
+            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+
+            fetch(overpassUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Server busy");
+                    return response.json();
+                })
+                .then(data => {
+                    dataCache[cacheKey] = data.elements;
+                    displayData(data.elements, label, iconChar);
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById('loading').innerText = "⚠️ Server busy. Retrying...";
+                    setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 3000);
+                });
+        }
+
+        function displayData(elements, label, iconChar) {
+            if(elements.length === 0) return;
+            var customIcon = L.divIcon({ className: 'emoji-icon', html: iconChar, iconSize: [40, 40] });
+            elements.forEach(element => {
+                var marker = L.marker([element.lat, element.lon], {icon: customIcon}).addTo(map);
+                var name = element.tags.name || element.tags["name:en"] || label;
+                var googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${element.lat},${element.lon}`;
+                var popupContent = `
+                    <div style="font-size:14px; min-width:150px">
+                        <div style="font-size:24px; text-align:center;">${iconChar}</div>
+                        <b style="color:#333">${label}</b><br>${name}<br>
+                        <a href="${googleMapsLink}" target="_blank" class="popup-btn">🚶 Take me there!</a>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                currentMarkers.push(marker);
+            });
+        }
+    </script>
+</body>
+</html>
